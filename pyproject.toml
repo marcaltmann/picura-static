@@ -1,0 +1,13 @@
+[project]
+name = 'picura-static'
+version = '0.0.0'
+description = 'Static site generator for a personal photo portfolio (concept).'
+requires-python = '>=3.14'
+dependencies = [
+    'pillow~=12.2.0',
+]
+
+[dependency-groups]
+dev = [
+    'pytest>=9',
+]
