@@ -1,0 +1,7 @@
+# Album-level info only. Captions come from each photo's embedded metadata
+# (Darktable export); membership comes from the photos present in web/.
+title: Japan 2026
+date: 2026-04-12
+description: Two weeks, mostly Kyoto and Tokyo.
+cover: DSC0042.jpg
+unlisted: false        # if true: built, but not linked from the index page

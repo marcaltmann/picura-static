@@ -5,6 +5,7 @@ description = 'Static site generator for a personal photo portfolio (concept).'
 requires-python = '>=3.14'
 dependencies = [
     'pillow~=12.2.0',
+    'pyyaml~=6.0',
 ]
 
 [dependency-groups]
