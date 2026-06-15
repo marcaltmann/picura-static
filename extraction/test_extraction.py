@@ -17,8 +17,8 @@ def _image_file(size=(640, 480), mode='RGB'):
 def _extract(raw, file=None, lens=None):
     file = file or _image_file()
     with (
-        patch('extraction.run_exiftool', return_value=raw),
-        patch('extraction.extract_lens', return_value=lens or {}),
+        patch('extraction.extraction.run_exiftool', return_value=raw),
+        patch('extraction.extraction.extract_lens', return_value=lens or {}),
     ):
         return extract_image_metadata(file)
 
