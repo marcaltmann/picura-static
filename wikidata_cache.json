@@ -1,4 +1,12 @@
 {
+  "Q1742501": {
+    "labels": {
+      "de": "Kirche Benz",
+      "en": "St.-Petri-Kirche (Benz auf Usedom)"
+    },
+    "lat": 53.9421,
+    "lon": 14.0722
+  },
   "Q2239936": {
     "labels": {
       "de": "Schloonsee",
@@ -30,5 +38,13 @@
     },
     "lat": 58,
     "lon": 20
+  },
+  "Q818426": {
+    "labels": {
+      "de": "Benz",
+      "en": "Benz"
+    },
+    "lat": 53.933333333333,
+    "lon": 14.066666666667
   }
 }
