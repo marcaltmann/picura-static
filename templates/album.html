@@ -20,6 +20,15 @@
              width="{{ display.width }}" height="{{ display.height }}">
       </picture>
       {% if photo.caption %}<figcaption class="photo__caption">{{ photo.caption }}</figcaption>{% endif %}
+      {% if photo.entities %}
+      <ul class="photo__tags" role="list">
+        {% for entity in photo.entities %}
+        <li class="photo__tag photo__tag--{{ entity.relation }}">
+          <a href="https://www.wikidata.org/wiki/{{ entity.qid }}">{{ entity.label }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
     </figure>
     {% endfor %}
   </div>

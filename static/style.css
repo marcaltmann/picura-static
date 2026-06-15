@@ -152,3 +152,23 @@ a {
   color: var(--color-muted);
   font-size: 0.9rem;
 }
+
+.photo__tags {
+  margin: var(--space-s) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+
+.photo__tag {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+}
+
+.photo__tag a {
+  text-decoration: none;
+}

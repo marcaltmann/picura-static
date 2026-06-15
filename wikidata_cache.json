@@ -1,0 +1,34 @@
+{
+  "Q2239936": {
+    "labels": {
+      "de": "Schloonsee",
+      "en": "Schloonsee"
+    },
+    "lat": 53.966639366667,
+    "lon": 14.145841597222
+  },
+  "Q313975": {
+    "labels": {
+      "de": "Bansin",
+      "en": "Bansin"
+    },
+    "lat": 53.9639,
+    "lon": 14.1339
+  },
+  "Q3255": {
+    "labels": {
+      "de": "Usedom",
+      "en": "Usedom"
+    },
+    "lat": 53.933333333333,
+    "lon": 14.083333333333
+  },
+  "Q545": {
+    "labels": {
+      "de": "Ostsee",
+      "en": "Baltic Sea"
+    },
+    "lat": 58,
+    "lon": 20
+  }
+}

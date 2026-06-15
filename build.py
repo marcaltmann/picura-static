@@ -1,5 +1,8 @@
 import argparse
+import json
 import shutil
+import urllib.parse
+import urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -11,6 +14,10 @@ from extraction import extract_image_metadata
 
 _TEMPLATES = Path(__file__).parent / 'templates'
 _STATIC = Path(__file__).parent / 'static'
+
+_WIKIDATA_API = 'https://www.wikidata.org/w/api.php'
+_USER_AGENT = 'picura-static/0.0 (static photo portfolio build)'
+_LABEL_LANGS = ('de', 'en')
 
 # Map a site.yaml format name to its Pillow save format and the file
 # extension used in output filenames (which templates reference verbatim,
@@ -169,11 +176,115 @@ def _caption(meta, stem, m):
     return m['title'] or m['description'] or None
 
 
-def build_album(site, album_dir, out_root):
+# --- Wikidata authority data --------------------------------------------
+#
+# Q-IDs live in qids/<stem>.json sidecars next to the master (they don't
+# survive a Darktable export). Enrichment is offline-first: labels/coords are
+# read from wikidata_cache.json and the API is hit only on a cache miss, so
+# repeat builds are fast and work with no network.
+
+
+def load_qids(path):
+    """Read a ``{relation: [qid, ...]}`` sidecar, or ``{}`` if it's absent."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def load_cache(path):
+    path = Path(path)
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def save_cache(path, cache):
+    Path(path).write_text(
+        json.dumps(cache, indent=2, ensure_ascii=False, sort_keys=True) + '\n',
+        encoding='utf-8',
+    )
+
+
+def _coordinate(claims):
+    for claim in claims.get('P625', []):
+        try:
+            value = claim['mainsnak']['datavalue']['value']
+        except (KeyError, TypeError):
+            continue
+        return value['latitude'], value['longitude']
+    return None
+
+
+def _fetch_entity(qid):
+    """Fetch de/en labels and coordinates for ``qid`` from the Wikidata API."""
+    params = urllib.parse.urlencode({
+        'action': 'wbgetentities',
+        'format': 'json',
+        'ids': qid,
+        'props': 'labels|claims',
+        'languages': '|'.join(_LABEL_LANGS),
+    })
+    request = urllib.request.Request(
+        f'{_WIKIDATA_API}?{params}', headers={'User-Agent': _USER_AGENT}
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        data = json.load(response)
+    entity = data['entities'][qid]
+    raw_labels = entity.get('labels', {})
+    result = {
+        'labels': {
+            lang: raw_labels[lang]['value']
+            for lang in _LABEL_LANGS
+            if lang in raw_labels
+        }
+    }
+    coord = _coordinate(entity.get('claims', {}))
+    if coord:
+        result['lat'], result['lon'] = coord
+    return result
+
+
+def enrich(qid, cache):
+    """Return cached entity data for ``qid``, fetching + caching on a miss.
+
+    A failed fetch is not cached, so the next build retries it; it yields an
+    empty-label stub so the build never breaks on a network hiccup.
+    """
+    if qid not in cache:
+        # One ``except`` per type: ruff format mangles multi-type tuples
+        # (see extraction/exiftool.py).
+        try:
+            cache[qid] = _fetch_entity(qid)
+        except OSError:
+            return {'qid': qid, 'labels': {}}
+        except ValueError:
+            return {'qid': qid, 'labels': {}}
+        except KeyError:
+            return {'qid': qid, 'labels': {}}
+    return {'qid': qid, **cache[qid]}
+
+
+def _entities(qids, cache):
+    entities = []
+    for relation, ids in qids.items():
+        for qid in ids:
+            entity = enrich(qid, cache)
+            labels = entity['labels']
+            entities.append({
+                **entity,
+                'relation': relation,
+                'label': labels.get('en') or labels.get('de') or qid,
+            })
+    return entities
+
+
+def build_album(site, album_dir, out_root, cache):
     """Extract, fan out (incrementally), and assemble one album's photos."""
     meta = yaml.safe_load((album_dir / 'album.yaml').read_text())
     slug = album_dir.name
     album_out = out_root / 'albums' / slug
+    qids_dir = album_dir / 'qids'
 
     photos = []
     for jpg in sorted((album_dir / 'web').glob('*.jpg')):
@@ -184,6 +295,7 @@ def build_album(site, album_dir, out_root):
         if not _outputs_current(jpg, album_out, variants):
             fan_out(jpg, album_out, site['images'])
         caption = _caption(meta, jpg.stem, m)
+        entities = _entities(load_qids(qids_dir / f'{jpg.stem}.json'), cache)
         photos.append({
             'stem': jpg.stem,
             'caption': caption,
@@ -194,6 +306,7 @@ def build_album(site, album_dir, out_root):
             'camera_model': m['camera_model'],
             'lens': m['lens'],
             'keywords': m['keywords'],
+            'entities': entities,
             'variants': variants,
         })
     return {'slug': slug, 'meta': meta, 'photos': photos}
@@ -215,18 +328,21 @@ def _order_albums(site, albums):
     return ordered + rest
 
 
-def build(content_dir='content', out_dir='dist', site_path='site.yaml'):
+def build(content_dir='content', out_dir='dist', site_path='site.yaml',
+          cache_path='wikidata_cache.json'):
     """Build the whole site: every album under ``content_dir`` into ``out_dir``."""
     out_dir = Path(out_dir)
     site = yaml.safe_load(Path(site_path).read_text())
+    cache = load_cache(cache_path)
     albums_dir = Path(content_dir) / 'albums'
     album_dirs = sorted(
         d for d in albums_dir.iterdir() if (d / 'album.yaml').exists()
     )
-    albums = [build_album(site, d, out_dir) for d in album_dirs]
+    albums = [build_album(site, d, out_dir, cache) for d in album_dirs]
     albums = _order_albums(site, albums)
     render(site, albums, out_dir)
     _copy_static(out_dir)
+    save_cache(cache_path, cache)
     return albums
 
 
@@ -243,8 +359,11 @@ def main(argv=None):
     parser.add_argument('--content', default='content', help='content directory')
     parser.add_argument('--out', default='dist', help='build output directory')
     parser.add_argument('--site', default='site.yaml', help='site config file')
+    parser.add_argument('--cache', default='wikidata_cache.json',
+                        help='Wikidata label/coord cache')
     args = parser.parse_args(argv)
-    albums = build(content_dir=args.content, out_dir=args.out, site_path=args.site)
+    albums = build(content_dir=args.content, out_dir=args.out,
+                   site_path=args.site, cache_path=args.cache)
     total = sum(len(album['photos']) for album in albums)
     print(f'Built {len(albums)} album(s), {total} photo(s) → {args.out}')
 
