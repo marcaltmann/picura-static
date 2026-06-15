@@ -34,7 +34,7 @@ def plan_variants(stem, size, images_config):
     Pure metadata, no image work — lets the build decide whether the outputs
     are already up to date before paying to re-encode them.
     """
-    formats = images_config['formats']
+    formats = images_config['formats']  # {fmt: {'quality': n}}
     sizes = {k: v for k, v in images_config.items() if k != 'formats'}
     width, height = size
     variants = {}
@@ -54,13 +54,15 @@ def fan_out(src, out_dir, images_config):
     """Generate resized derivatives of ``src`` in every configured format.
 
     ``images_config`` is the ``images:`` block from site.yaml: a ``formats``
-    list plus one entry per size (``thumb``, ``display``, ...), each with a
-    ``width`` and ``quality``. Returns a mapping of size name to its pixel
-    dimensions and the per-format output filenames, ready for templating.
+    mapping (each format to its ``quality``) plus one entry per size
+    (``thumb``, ``display``, ...) with a ``width``. Returns a mapping of size
+    name to its pixel dimensions and the per-format output filenames, ready
+    for templating.
     """
     src = Path(src)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    formats = images_config['formats']
     sizes = {k: v for k, v in images_config.items() if k != 'formats'}
 
     with Image.open(src) as img:
@@ -76,7 +78,7 @@ def fan_out(src, out_dir, images_config):
             resized = base if (w, h) == base.size else base.resize((w, h), Image.LANCZOS)
             for fmt, filename in variants[size_name]['sources'].items():
                 pil_format = _FORMATS[fmt][0]
-                save_kwargs = {'quality': spec['quality']}
+                save_kwargs = {'quality': formats[fmt]['quality']}
                 if icc:
                     save_kwargs['icc_profile'] = icc
                 resized.save(out_dir / filename, pil_format, **save_kwargs)

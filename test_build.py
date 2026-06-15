@@ -6,9 +6,13 @@ from PIL import Image
 from build import build, fan_out, render
 
 _IMAGES = {
-    'thumb': {'width': 600, 'quality': 80},
-    'display': {'width': 2000, 'quality': 82},
-    'formats': ['avif', 'webp', 'jpeg'],
+    'thumb': {'width': 600},
+    'display': {'width': 2000},
+    'formats': {
+        'avif': {'quality': 60},
+        'webp': {'quality': 80},
+        'jpeg': {'quality': 82},
+    },
 }
 
 

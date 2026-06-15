@@ -133,9 +133,12 @@ author: Marc Altmann
 album_order: [2026-japan, 2025-garden]   # or fall back to date-descending
 
 images:
-  thumb:   { width: 600,  quality: 80 }
-  display: { width: 2000, quality: 82 }   # (Darktable already does this size)
-  formats: [avif, webp, jpeg]
+  thumb:   { width: 600 }
+  display: { width: 2000 }                # (Darktable already does this size)
+  formats:                                # quality is per-format: codec scales differ
+    avif: { quality: 60 }                 #   AVIF ~60 ≈ WebP ~80 perceptually, but smaller
+    webp: { quality: 80 }
+    jpeg: { quality: 82 }                 #   universal fallback
 ```
 
 ### `content/albums/2026-japan/album.yaml`
