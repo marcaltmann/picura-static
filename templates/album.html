@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ album.title }} — {{ site.title }}</title>
+</head>
+<body>
+  <p><a href="../../">← {{ site.title }}</a></p>
+  <h1>{{ album.title }}</h1>
+  {% if album.date %}<time datetime="{{ album.date }}">{{ album.date }}</time>{% endif %}
+  {% if album.description %}<p class="album-description">{{ album.description }}</p>{% endif %}
+
+  <div class="gallery">
+    {% for photo in photos %}
+    {% set display = photo.variants.display %}
+    <figure>
+      <picture>
+        <source srcset="{{ display.sources.avif }}" type="image/avif">
+        <source srcset="{{ display.sources.webp }}" type="image/webp">
+        <img src="{{ display.sources.jpeg }}"
+             alt="{{ photo.alt }}" loading="lazy"
+             width="{{ display.width }}" height="{{ display.height }}">
+      </picture>
+      {% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}
+    </figure>
+    {% endfor %}
+  </div>
+</body>
+</html>

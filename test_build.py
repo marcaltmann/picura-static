@@ -1,6 +1,6 @@
 from PIL import Image
 
-from build import fan_out
+from build import fan_out, render
 
 _IMAGES = {
     'thumb': {'width': 600, 'quality': 80},
@@ -48,3 +48,56 @@ def test_output_files_are_decodable_in_their_format(tmp_path):
         assert img.width == 600
     with Image.open(out / 'DSC0042-display.webp') as img:
         assert img.format == 'WEBP'
+
+
+_SITE = {'title': 'Marc Altmann — Photography'}
+
+
+def _photo(stem='DSC0042', caption='Schloonsee'):
+    variant = lambda size: {
+        'width': 600 if size == 'thumb' else 2000,
+        'height': 401 if size == 'thumb' else 1336,
+        'sources': {fmt: f'{stem}-{size}.{fmt}' for fmt in ('avif', 'webp', 'jpeg')},
+    }
+    return {
+        'stem': stem,
+        'caption': caption,
+        'alt': caption,
+        'variants': {'thumb': variant('thumb'), 'display': variant('display')},
+    }
+
+
+def _album(slug='2026-japan', cover='DSC0042.jpg', unlisted=False):
+    return {
+        'slug': slug,
+        'meta': {'title': slug.title(), 'cover': cover, 'unlisted': unlisted},
+        'photos': [_photo()],
+    }
+
+
+def test_render_writes_index_and_album_pages(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    assert (tmp_path / 'index.html').exists()
+    assert (tmp_path / 'albums' / '2026-japan' / 'index.html').exists()
+
+
+def test_index_links_albums_with_cover_thumb(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    index = (tmp_path / 'index.html').read_text()
+    assert 'href="albums/2026-japan/"' in index
+    assert 'albums/2026-japan/DSC0042-thumb.avif' in index
+
+
+def test_album_page_emits_responsive_picture(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    page = (tmp_path / 'albums' / '2026-japan' / 'index.html').read_text()
+    assert 'srcset="DSC0042-display.avif" type="image/avif"' in page
+    assert 'src="DSC0042-display.jpeg"' in page
+    assert '<figcaption>Schloonsee</figcaption>' in page
+
+
+def test_unlisted_album_built_but_off_index(tmp_path):
+    render(_SITE, [_album(unlisted=True)], tmp_path)
+    index = (tmp_path / 'index.html').read_text()
+    assert 'albums/2026-japan/' not in index
+    assert (tmp_path / 'albums' / '2026-japan' / 'index.html').exists()

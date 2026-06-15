@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ site.title }}</title>
+</head>
+<body>
+  <h1>{{ site.title }}</h1>
+  <ul class="albums">
+    {% for album in albums %}
+    <li class="album">
+      <a href="albums/{{ album.slug }}/">
+        {% if album.cover %}
+        {% set thumb = album.cover.variants.thumb %}
+        <picture>
+          <source srcset="albums/{{ album.slug }}/{{ thumb.sources.avif }}" type="image/avif">
+          <source srcset="albums/{{ album.slug }}/{{ thumb.sources.webp }}" type="image/webp">
+          <img src="albums/{{ album.slug }}/{{ thumb.sources.jpeg }}"
+               alt="{{ album.title }}" loading="lazy"
+               width="{{ thumb.width }}" height="{{ thumb.height }}">
+        </picture>
+        {% endif %}
+        <span class="album-title">{{ album.title }}</span>
+        {% if album.date %}<time datetime="{{ album.date }}">{{ album.date }}</time>{% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
