@@ -1,6 +1,9 @@
+import os
+
+import yaml
 from PIL import Image
 
-from build import fan_out, render
+from build import build, fan_out, render
 
 _IMAGES = {
     'thumb': {'width': 600, 'quality': 80},
@@ -101,3 +104,67 @@ def test_unlisted_album_built_but_off_index(tmp_path):
     index = (tmp_path / 'index.html').read_text()
     assert 'albums/2026-japan/' not in index
     assert (tmp_path / 'albums' / '2026-japan' / 'index.html').exists()
+
+
+def _content_tree(tmp_path, album='2026-japan', extra_album_yaml=''):
+    web = tmp_path / 'content' / 'albums' / album / 'web'
+    web.mkdir(parents=True)
+    Image.new('RGB', (2000, 1336), color='blue').save(web / 'DSC0042.jpg', 'JPEG')
+    (web.parent / 'album.yaml').write_text(
+        f'title: Japan 2026\ndate: 2026-04-12\ncover: DSC0042.jpg\n{extra_album_yaml}'
+    )
+    site = tmp_path / 'site.yaml'
+    site.write_text(yaml.safe_dump({
+        'title': 'Test', 'album_order': [album], 'images': _IMAGES,
+    }))
+    return site
+
+
+def test_build_writes_full_site(tmp_path):
+    site = _content_tree(tmp_path)
+    out = tmp_path / 'dist'
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+
+    assert (out / 'index.html').exists()
+    album_out = out / 'albums' / '2026-japan'
+    assert (album_out / 'index.html').exists()
+    assert (album_out / 'DSC0042-display.avif').exists()
+    assert (album_out / 'DSC0042-thumb.webp').exists()
+
+
+def test_album_yaml_caption_overrides_embedded(tmp_path):
+    site = _content_tree(tmp_path, extra_album_yaml='captions:\n  DSC0042.jpg: Forced Title\n')
+    out = tmp_path / 'dist'
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+    page = (out / 'albums' / '2026-japan' / 'index.html').read_text()
+    assert '<figcaption>Forced Title</figcaption>' in page
+
+
+def test_incremental_skips_unchanged_photos(tmp_path):
+    site = _content_tree(tmp_path)
+    out = tmp_path / 'dist'
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+
+    source = tmp_path / 'content' / 'albums' / '2026-japan' / 'web' / 'DSC0042.jpg'
+    variant = out / 'albums' / '2026-japan' / 'DSC0042-display.avif'
+    # Source older than its derivatives; stamp the output with a marker mtime.
+    os.utime(source, (1_000_000, 1_000_000))
+    os.utime(variant, (2_000_000, 2_000_000))
+
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+    assert variant.stat().st_mtime == 2_000_000  # untouched = skipped
+
+
+def test_incremental_rebuilds_when_source_is_newer(tmp_path):
+    site = _content_tree(tmp_path)
+    out = tmp_path / 'dist'
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+
+    source = tmp_path / 'content' / 'albums' / '2026-japan' / 'web' / 'DSC0042.jpg'
+    variant = out / 'albums' / '2026-japan' / 'DSC0042-display.avif'
+    # Source newer than its derivatives -> must regenerate.
+    os.utime(variant, (1_000_000, 1_000_000))
+    os.utime(source, (2_000_000, 2_000_000))
+
+    build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
+    assert variant.stat().st_mtime != 1_000_000  # rewritten
