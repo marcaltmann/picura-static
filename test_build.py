@@ -100,7 +100,7 @@ def test_album_page_emits_responsive_picture(tmp_path):
     page = (tmp_path / 'albums' / '2026-japan' / 'index.html').read_text()
     assert 'srcset="DSC0042-display.avif" type="image/avif"' in page
     assert 'src="DSC0042-display.jpeg"' in page
-    assert '<figcaption>Schloonsee</figcaption>' in page
+    assert '>Schloonsee</figcaption>' in page
 
 
 def test_unlisted_album_built_but_off_index(tmp_path):
@@ -134,6 +134,7 @@ def test_build_writes_full_site(tmp_path):
     assert (album_out / 'index.html').exists()
     assert (album_out / 'DSC0042-display.avif').exists()
     assert (album_out / 'DSC0042-thumb.webp').exists()
+    assert (out / 'style.css').exists()
 
 
 def test_album_yaml_caption_overrides_embedded(tmp_path):
@@ -141,7 +142,7 @@ def test_album_yaml_caption_overrides_embedded(tmp_path):
     out = tmp_path / 'dist'
     build(content_dir=tmp_path / 'content', out_dir=out, site_path=site)
     page = (out / 'albums' / '2026-japan' / 'index.html').read_text()
-    assert '<figcaption>Forced Title</figcaption>' in page
+    assert '>Forced Title</figcaption>' in page
 
 
 def test_incremental_skips_unchanged_photos(tmp_path):

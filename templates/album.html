@@ -1,30 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ album.title }} — {{ site.title }}</title>
-</head>
-<body>
-  <p><a href="../../">← {{ site.title }}</a></p>
-  <h1>{{ album.title }}</h1>
-  {% if album.date %}<time datetime="{{ album.date }}">{{ album.date }}</time>{% endif %}
-  {% if album.description %}<p class="album-description">{{ album.description }}</p>{% endif %}
+{% extends "base.html" %}
+{% block title %}{{ album.title }} — {{ site.title }}{% endblock %}
+{% block content %}
+  <header class="album-header flow">
+    <p><a class="back-link" href="../../">← {{ site.title }}</a></p>
+    <h1 class="album-header__title">{{ album.title }}</h1>
+    {% if album.date %}<time class="album-header__date" datetime="{{ album.date }}">{{ album.date }}</time>{% endif %}
+    {% if album.description %}<p class="album-header__description">{{ album.description }}</p>{% endif %}
+  </header>
 
   <div class="gallery">
     {% for photo in photos %}
     {% set display = photo.variants.display %}
-    <figure>
+    <figure class="photo">
       <picture>
         <source srcset="{{ display.sources.avif }}" type="image/avif">
         <source srcset="{{ display.sources.webp }}" type="image/webp">
-        <img src="{{ display.sources.jpeg }}"
+        <img class="photo__image" src="{{ display.sources.jpeg }}"
              alt="{{ photo.alt }}" loading="lazy"
              width="{{ display.width }}" height="{{ display.height }}">
       </picture>
-      {% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}
+      {% if photo.caption %}<figcaption class="photo__caption">{{ photo.caption }}</figcaption>{% endif %}
     </figure>
     {% endfor %}
   </div>
-</body>
-</html>
+{% endblock %}

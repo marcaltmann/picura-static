@@ -1,4 +1,5 @@
 import argparse
+import shutil
 from datetime import date
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from PIL import Image
 from extraction import extract_image_metadata
 
 _TEMPLATES = Path(__file__).parent / 'templates'
+_STATIC = Path(__file__).parent / 'static'
 
 # Map a site.yaml format name to its Pillow save format and the file
 # extension used in output filenames (which templates reference verbatim,
@@ -127,8 +129,10 @@ def render(site, albums, out_dir):
 
     out_dir.mkdir(parents=True, exist_ok=True)
     listed = [card for card in cards if not card['unlisted']]
+    # ``root`` is the relative path back to the site root, so shared assets
+    # (style.css) resolve from pages at any depth.
     (out_dir / 'index.html').write_text(
-        env.get_template('index.html').render(site=site, albums=listed),
+        env.get_template('index.html').render(site=site, albums=listed, root=''),
         encoding='utf-8',
     )
 
@@ -137,7 +141,7 @@ def render(site, albums, out_dir):
         album_dir.mkdir(parents=True, exist_ok=True)
         (album_dir / 'index.html').write_text(
             env.get_template('album.html').render(
-                site=site, album=card, photos=album['photos']
+                site=site, album=card, photos=album['photos'], root='../../'
             ),
             encoding='utf-8',
         )
@@ -222,7 +226,16 @@ def build(content_dir='content', out_dir='dist', site_path='site.yaml'):
     albums = [build_album(site, d, out_dir) for d in album_dirs]
     albums = _order_albums(site, albums)
     render(site, albums, out_dir)
+    _copy_static(out_dir)
     return albums
+
+
+def _copy_static(out_dir):
+    if not _STATIC.is_dir():
+        return
+    for asset in _STATIC.iterdir():
+        if asset.is_file():
+            shutil.copy2(asset, out_dir / asset.name)
 
 
 def main(argv=None):
