@@ -112,7 +112,7 @@ def test_unlisted_album_built_but_off_index(tmp_path):
     assert (tmp_path / 'albums' / '2026-japan' / 'index.html').exists()
 
 
-def _content_tree(tmp_path, album='2026-japan', extra_album_yaml='', qids=None):
+def _content_tree(tmp_path, album='2026-japan', extra_album_yaml='', qids=None, cname=None):
     web = tmp_path / 'content' / 'albums' / album / 'web'
     web.mkdir(parents=True)
     Image.new('RGB', (2000, 1336), color='blue').save(web / 'DSC0042.jpg', 'JPEG')
@@ -123,10 +123,11 @@ def _content_tree(tmp_path, album='2026-japan', extra_album_yaml='', qids=None):
         qids_dir = web.parent / 'qids'
         qids_dir.mkdir()
         (qids_dir / 'DSC0042.json').write_text(json.dumps(qids))
+    config = {'title': 'Test', 'album_order': [album], 'images': _IMAGES}
+    if cname is not None:
+        config['cname'] = cname
     site = tmp_path / 'site.yaml'
-    site.write_text(yaml.safe_dump({
-        'title': 'Test', 'album_order': [album], 'images': _IMAGES,
-    }))
+    site.write_text(yaml.safe_dump(config))
     return site
 
 
@@ -150,6 +151,17 @@ def test_build_writes_full_site(tmp_path):
     assert (album_out / 'DSC0042-display.avif').exists()
     assert (album_out / 'DSC0042-thumb.webp').exists()
     assert (out / 'style.css').exists()
+
+
+def test_cname_written_when_configured(tmp_path):
+    _build(tmp_path, _content_tree(tmp_path, cname='photos.marcaltmann.com'))
+    cname = tmp_path / 'dist' / 'CNAME'
+    assert cname.read_text() == 'photos.marcaltmann.com\n'
+
+
+def test_no_cname_without_config(tmp_path):
+    _build(tmp_path, _content_tree(tmp_path))
+    assert not (tmp_path / 'dist' / 'CNAME').exists()
 
 
 def test_album_yaml_caption_overrides_embedded(tmp_path):

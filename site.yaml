@@ -1,7 +1,11 @@
 # Global site config. Read by build.py.
 title: Marc Altmann — Photography
-base_url: https://photos.example.com
+base_url: https://photos.marcaltmann.com
 author: Marc Altmann
+
+# Custom domain for GitHub Pages. When set, the build writes a CNAME file
+# into dist/ so the domain survives every (force-pushed) deploy.
+cname: photos.marcaltmann.com
 
 # Explicit album ordering on the index page; falls back to date-descending
 # for any album not listed here.

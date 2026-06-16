@@ -342,6 +342,10 @@ def build(content_dir='content', out_dir='dist', site_path='site.yaml',
     albums = _order_albums(site, albums)
     render(site, albums, out_dir)
     _copy_static(out_dir)
+    # Emit the GitHub Pages custom-domain marker so it survives the
+    # force-pushed deploy (which would otherwise wipe a UI-set CNAME).
+    if site.get('cname'):
+        (out_dir / 'CNAME').write_text(site['cname'] + '\n', encoding='utf-8')
     save_cache(cache_path, cache)
     return albums
 
