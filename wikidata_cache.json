@@ -1,4 +1,18 @@
 {
+  "Q145954": {
+    "labels": {
+      "de": "Schwarzkiefer",
+      "en": "Pinus nigra"
+    }
+  },
+  "Q163255": {
+    "labels": {
+      "de": "Botanischer Garten und Botanisches Museum Berlin",
+      "en": "Botanic Garden and Botanical Museum Berlin"
+    },
+    "lat": 52.455,
+    "lon": 13.3036
+  },
   "Q1742501": {
     "labels": {
       "de": "Kirche Benz",
@@ -38,6 +52,12 @@
     },
     "lat": 58,
     "lon": 20
+  },
+  "Q59668787": {
+    "labels": {
+      "de": "Kiefer",
+      "en": "pine tree"
+    }
   },
   "Q818426": {
     "labels": {
