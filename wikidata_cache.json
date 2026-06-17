@@ -5,6 +5,30 @@
       "en": "Pinus nigra"
     }
   },
+  "Q146048": {
+    "labels": {
+      "de": "Europäische Lärche",
+      "en": "Larix decidua"
+    }
+  },
+  "Q148980": {
+    "labels": {
+      "de": "Klappertöpfe",
+      "en": "Rhinanthus"
+    }
+  },
+  "Q156635": {
+    "labels": {
+      "de": "Wiesen-Klee",
+      "en": "Trifolium pratense"
+    }
+  },
+  "Q159737": {
+    "labels": {
+      "de": "Vielblättrige Lupine",
+      "en": "Lupinus polyphyllus"
+    }
+  },
   "Q163255": {
     "labels": {
       "de": "Botanischer Garten und Botanisches Museum Berlin",
@@ -21,6 +45,14 @@
     "lat": 53.9421,
     "lon": 14.0722
   },
+  "Q210287": {
+    "labels": {
+      "de": "Qufu",
+      "en": "Qufu"
+    },
+    "lat": 35.6,
+    "lon": 116.98333333333
+  },
   "Q2239936": {
     "labels": {
       "de": "Schloonsee",
@@ -28,6 +60,14 @@
     },
     "lat": 53.966639366667,
     "lon": 14.145841597222
+  },
+  "Q273834": {
+    "labels": {
+      "de": "Longmen-Grotten",
+      "en": "Longmen Grottoes"
+    },
+    "lat": 34.555555555556,
+    "lon": 112.46972222222
   },
   "Q313975": {
     "labels": {
@@ -45,6 +85,27 @@
     "lat": 53.933333333333,
     "lon": 14.083333333333
   },
+  "Q339822": {
+    "labels": {
+      "en": "Temple of Confucius, Qufu"
+    },
+    "lat": 35.5967,
+    "lon": 116.984
+  },
+  "Q3679502": {
+    "labels": {
+      "de": "Rohrleitung",
+      "en": "piping"
+    }
+  },
+  "Q47672": {
+    "labels": {
+      "de": "Terrakotta-Armee",
+      "en": "Terracotta Army"
+    },
+    "lat": 34.385,
+    "lon": 109.27305555555556
+  },
   "Q545": {
     "labels": {
       "de": "Ostsee",
@@ -53,11 +114,46 @@
     "lat": 58,
     "lon": 20
   },
+  "Q5826": {
+    "labels": {
+      "de": "Xi’an",
+      "en": "Xi'an"
+    },
+    "lat": 34.26111111111111,
+    "lon": 108.94222222222223
+  },
   "Q59668787": {
     "labels": {
       "de": "Kiefer",
       "en": "pine tree"
     }
+  },
+  "Q623489": {
+    "labels": {
+      "de": "Atlas-Zeder",
+      "en": "Cedrus atlantica"
+    }
+  },
+  "Q7183281": {
+    "labels": {
+      "en": "Longmen"
+    },
+    "lat": 34.58061,
+    "lon": 112.46972
+  },
+  "Q747652": {
+    "labels": {
+      "de": "Tränen-Kiefer",
+      "en": "Pinus wallichiana"
+    }
+  },
+  "Q80290": {
+    "labels": {
+      "de": "Verbotene Stadt",
+      "en": "Forbidden City"
+    },
+    "lat": 39.91583333333333,
+    "lon": 116.39083333333333
   },
   "Q818426": {
     "labels": {
@@ -66,5 +162,13 @@
     },
     "lat": 53.933333333333,
     "lon": 14.066666666667
+  },
+  "Q956": {
+    "labels": {
+      "de": "Peking",
+      "en": "Beijing"
+    },
+    "lat": 39.90403,
+    "lon": 116.407526
   }
 }
