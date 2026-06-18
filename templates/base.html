@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site.title }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ root }}style.css">
+  {% block head %}{% endblock %}
 </head>
 <body class="wrapper flow">
   {% block content %}{% endblock %}

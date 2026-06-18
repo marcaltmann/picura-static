@@ -12,13 +12,15 @@
     {% for photo in photos %}
     {% set display = photo.variants.display %}
     <figure class="photo">
-      <picture>
-        <source srcset="{{ display.sources.avif }}" type="image/avif">
-        <source srcset="{{ display.sources.webp }}" type="image/webp">
-        <img class="photo__image" src="{{ display.sources.jpeg }}"
-             alt="{{ photo.alt }}" loading="lazy"
-             width="{{ display.width }}" height="{{ display.height }}">
-      </picture>
+      <a class="photo__link" href="{{ photo.stem }}.html">
+        <picture>
+          <source srcset="{{ display.sources.avif }}" type="image/avif">
+          <source srcset="{{ display.sources.webp }}" type="image/webp">
+          <img class="photo__image" src="{{ display.sources.jpeg }}"
+               alt="{{ photo.alt }}" loading="lazy"
+               width="{{ display.width }}" height="{{ display.height }}">
+        </picture>
+      </a>
       {% if photo.caption %}<figcaption class="photo__caption">{{ photo.caption }}</figcaption>{% endif %}
       {% if photo.entities %}
       <ul class="photo__tags" role="list">

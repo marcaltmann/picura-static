@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ photo.caption or photo.stem }} — {{ album.title }}{% endblock %}
+{% block head %}
+  {% if photo.map_points %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  {% endif %}
+{% endblock %}
+{% block content %}
+  {% set display = photo.variants.display %}
+  <p><a class="back-link" href="index.html">← {{ album.title }}</a></p>
+
+  <figure class="detail">
+    <picture>
+      <source srcset="{{ display.sources.avif }}" type="image/avif">
+      <source srcset="{{ display.sources.webp }}" type="image/webp">
+      <img class="detail__image" src="{{ display.sources.jpeg }}"
+           alt="{{ photo.alt }}"
+           width="{{ display.width }}" height="{{ display.height }}">
+    </picture>
+    {% if photo.caption %}<figcaption class="detail__caption">{{ photo.caption }}</figcaption>{% endif %}
+  </figure>
+
+  {% if photo.description and photo.description != photo.caption %}
+  <p class="detail__description">{{ photo.description }}</p>
+  {% endif %}
+
+  <dl class="exif">
+    {% if photo.taken_at %}<dt class="exif__key">Taken</dt><dd class="exif__value">{{ photo.taken_at.strftime('%-d %B %Y, %H:%M') }}</dd>{% endif %}
+    {% set camera = ([photo.camera_make, photo.camera_model] | select | join(' ')) %}
+    {% if camera %}<dt class="exif__key">Camera</dt><dd class="exif__value">{{ camera }}</dd>{% endif %}
+    {% if photo.lens %}<dt class="exif__key">Lens</dt><dd class="exif__value">{{ photo.lens }}</dd>{% endif %}
+    {% if photo.focal_length %}<dt class="exif__key">Focal length</dt><dd class="exif__value">{{ photo.focal_length | round | int }} mm</dd>{% endif %}
+    {% if photo.aperture %}<dt class="exif__key">Aperture</dt><dd class="exif__value">f/{{ '%g' | format(photo.aperture) }}</dd>{% endif %}
+    {% if photo.shutter_speed %}<dt class="exif__key">Shutter</dt><dd class="exif__value">{{ photo.shutter_speed }} s</dd>{% endif %}
+    {% if photo.iso %}<dt class="exif__key">ISO</dt><dd class="exif__value">{{ photo.iso }}</dd>{% endif %}
+    {% if photo.width and photo.height %}<dt class="exif__key">Dimensions</dt><dd class="exif__value">{{ photo.width }} × {{ photo.height }}</dd>{% endif %}
+    {% if photo.creator %}<dt class="exif__key">Creator</dt><dd class="exif__value">{{ photo.creator }}</dd>{% endif %}
+    {% if photo.copyright %}<dt class="exif__key">Copyright</dt><dd class="exif__value">{{ photo.copyright }}</dd>{% endif %}
+  </dl>
+
+  {% if photo.entities %}
+  <ul class="photo__tags" role="list">
+    {% for entity in photo.entities %}
+    <li class="photo__tag photo__tag--{{ entity.relation }}">
+      <a href="https://www.wikidata.org/wiki/{{ entity.qid }}">{{ entity.label }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if photo.map_points %}
+  <div id="map" class="detail__map" data-points='{{ photo.map_points | tojson }}'></div>
+  {% endif %}
+
+  <nav class="photo-nav">
+    {% if prev %}<a class="photo-nav__prev" href="{{ prev.stem }}.html">← {{ prev.caption or prev.stem }}</a>{% endif %}
+    {% if next %}<a class="photo-nav__next" href="{{ next.stem }}.html">{{ next.caption or next.stem }} →</a>{% endif %}
+  </nav>
+
+  {% if photo.map_points %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      var el = document.getElementById('map');
+      var points = JSON.parse(el.dataset.points);
+      var map = L.map(el);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      var latlngs = points.map(function (p) {
+        L.marker([p.lat, p.lon]).addTo(map).bindPopup(p.label);
+        return [p.lat, p.lon];
+      });
+      if (latlngs.length === 1) {
+        map.setView(latlngs[0], 11);
+      } else {
+        map.fitBounds(latlngs, { padding: [40, 40] });
+      }
+    })();
+  </script>
+  {% endif %}
+{% endblock %}

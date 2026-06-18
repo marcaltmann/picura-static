@@ -172,3 +172,63 @@ a {
 .photo__tag a {
   text-decoration: none;
 }
+
+.photo__link {
+  display: block;
+}
+
+/* detail */
+.detail {
+  margin: 0;
+}
+
+.detail__image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+.detail__caption {
+  margin-block-start: var(--space-s);
+  font-size: 1.1rem;
+}
+
+.detail__description {
+  max-width: 60ch;
+  color: var(--color-muted);
+}
+
+/* exif */
+.exif {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-s) var(--space-l);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.exif__key {
+  color: var(--color-muted);
+}
+
+.exif__value {
+  margin: 0;
+}
+
+.detail__map {
+  height: 24rem;
+  border-radius: var(--radius);
+  /* Leaflet panes otherwise paint over the rounded corners. */
+  overflow: hidden;
+}
+
+/* photo-nav */
+.photo-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-m);
+}
+
+.photo-nav__next {
+  margin-inline-start: auto;
+}

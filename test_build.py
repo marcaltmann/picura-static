@@ -5,7 +5,7 @@ from unittest.mock import patch
 import yaml
 from PIL import Image
 
-from build import build, enrich, fan_out, load_qids, render
+from build import _map_points, build, enrich, fan_out, load_qids, render
 
 _IMAGES = {
     'thumb': {'width': 600},
@@ -62,7 +62,7 @@ def test_output_files_are_decodable_in_their_format(tmp_path):
 _SITE = {'title': 'Marc Altmann — Photography'}
 
 
-def _photo(stem='DSC0042', caption='Schloonsee'):
+def _photo(stem='DSC0042', caption='Schloonsee', entities=None, map_points=None):
     variant = lambda size: {
         'width': 600 if size == 'thumb' else 2000,
         'height': 401 if size == 'thumb' else 1336,
@@ -72,6 +72,16 @@ def _photo(stem='DSC0042', caption='Schloonsee'):
         'stem': stem,
         'caption': caption,
         'alt': caption,
+        'description': caption,
+        'camera_make': 'SONY',
+        'camera_model': 'ILCE-7M3',
+        'lens': 'FE 24-70mm F2.8 GM',
+        'focal_length': 35.0,
+        'aperture': 2.8,
+        'shutter_speed': '1/250',
+        'iso': 100,
+        'entities': entities or [],
+        'map_points': map_points or [],
         'variants': {'thumb': variant('thumb'), 'display': variant('display')},
     }
 
@@ -103,6 +113,75 @@ def test_album_page_emits_responsive_picture(tmp_path):
     assert 'srcset="DSC0042-display.avif" type="image/avif"' in page
     assert 'src="DSC0042-display.jpeg"' in page
     assert '>Schloonsee</figcaption>' in page
+
+
+def test_render_writes_a_detail_page_per_photo(tmp_path):
+    album = _album()
+    album['photos'] = [_photo('A'), _photo('B')]
+    render(_SITE, [album], tmp_path)
+    album_dir = tmp_path / 'albums' / '2026-japan'
+    assert (album_dir / 'A.html').exists()
+    assert (album_dir / 'B.html').exists()
+
+
+def test_album_gallery_links_to_detail_page(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    page = (tmp_path / 'albums' / '2026-japan' / 'index.html').read_text()
+    assert 'href="DSC0042.html"' in page
+
+
+def test_detail_page_shows_exif(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    page = (tmp_path / 'albums' / '2026-japan' / 'DSC0042.html').read_text()
+    assert 'SONY ILCE-7M3' in page
+    assert 'f/2.8' in page
+    assert '35 mm' in page
+    assert 'ISO' in page and '100' in page
+
+
+def test_detail_pages_link_prev_and_next(tmp_path):
+    album = _album()
+    album['photos'] = [_photo('A'), _photo('B'), _photo('C')]
+    render(_SITE, [album], tmp_path)
+    album_dir = tmp_path / 'albums' / '2026-japan'
+    middle = (album_dir / 'B.html').read_text()
+    assert 'href="A.html"' in middle and 'href="C.html"' in middle
+    first = (album_dir / 'A.html').read_text()
+    assert 'href="B.html"' in first  # next only; no prev to the album
+
+
+def test_detail_page_embeds_map_for_place_coordinates(tmp_path):
+    points = [{'label': 'Bansin', 'lat': 53.96, 'lon': 14.13}]
+    album = _album()
+    album['photos'] = [_photo(map_points=points)]
+    render(_SITE, [album], tmp_path)
+    page = (tmp_path / 'albums' / '2026-japan' / 'DSC0042.html').read_text()
+    assert 'id="map"' in page
+    assert 'leaflet' in page
+    assert 'Bansin' in page
+    # Single-quoted: tojson escapes ' but not ", so a double-quoted attribute
+    # would truncate at the first JSON quote and break the markup.
+    assert "data-points='[" in page
+
+
+def test_detail_page_omits_map_without_coordinates(tmp_path):
+    render(_SITE, [_album()], tmp_path)
+    page = (tmp_path / 'albums' / '2026-japan' / 'DSC0042.html').read_text()
+    assert 'id="map"' not in page
+    assert 'leaflet' not in page
+
+
+def test_map_points_only_from_places_with_coordinates():
+    entities = [
+        {'relation': 'place', 'label': 'Bansin', 'qid': 'Q313975',
+         'lat': 53.96, 'lon': 14.13},
+        {'relation': 'place', 'label': 'Pine', 'qid': 'Q1'},  # place, no coords
+        {'relation': 'about', 'label': 'Lake', 'qid': 'Q2',
+         'lat': 1.0, 'lon': 2.0},  # has coords but not a place
+    ]
+    assert _map_points(entities) == [
+        {'label': 'Bansin', 'lat': 53.96, 'lon': 14.13},
+    ]
 
 
 def test_unlisted_album_built_but_off_index(tmp_path):

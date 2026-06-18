@@ -143,15 +143,29 @@ def render(site, albums, out_dir):
         encoding='utf-8',
     )
 
+    photo_template = env.get_template('photo.html')
     for album, card in zip(albums, cards):
         album_dir = out_dir / 'albums' / album['slug']
         album_dir.mkdir(parents=True, exist_ok=True)
+        photos = album['photos']
         (album_dir / 'index.html').write_text(
             env.get_template('album.html').render(
-                site=site, album=card, photos=album['photos'], root='../../'
+                site=site, album=card, photos=photos, root='../../'
             ),
             encoding='utf-8',
         )
+        # One detail page per photo, alongside its derivative images so the
+        # relative variant filenames resolve. prev/next walk the album order.
+        for i, photo in enumerate(photos):
+            (album_dir / f'{photo["stem"]}.html').write_text(
+                photo_template.render(
+                    site=site, album=card, photo=photo,
+                    prev=photos[i - 1] if i else None,
+                    next=photos[i + 1] if i + 1 < len(photos) else None,
+                    root='../../',
+                ),
+                encoding='utf-8',
+            )
 
 
 def _outputs_current(src, out_dir, variants):
@@ -279,6 +293,20 @@ def _entities(qids, cache):
     return entities
 
 
+def _map_points(entities):
+    """Map markers for the detail page: place entities that carry coordinates.
+
+    Built from the place Q-IDs' Wikidata coordinates (P625), so a photo is
+    located by the named places it depicts rather than its (often absent)
+    embedded GPS.
+    """
+    return [
+        {'label': entity['label'], 'lat': entity['lat'], 'lon': entity['lon']}
+        for entity in entities
+        if entity['relation'] == 'place' and 'lat' in entity and 'lon' in entity
+    ]
+
+
 def build_album(site, album_dir, out_root, cache):
     """Extract, fan out (incrementally), and assemble one album's photos."""
     meta = yaml.safe_load((album_dir / 'album.yaml').read_text())
@@ -303,10 +331,20 @@ def build_album(site, album_dir, out_root, cache):
             'title': m['title'],
             'description': m['description'],
             'taken_at': m['taken_at'],
+            'camera_make': m['camera_make'],
             'camera_model': m['camera_model'],
             'lens': m['lens'],
+            'aperture': m['aperture'],
+            'shutter_speed': m['shutter_speed'],
+            'focal_length': m['focal_length'],
+            'iso': m['iso'],
+            'copyright': m['copyright'],
+            'creator': m['creator'],
+            'width': m['width'],
+            'height': m['height'],
             'keywords': m['keywords'],
             'entities': entities,
+            'map_points': _map_points(entities),
             'variants': variants,
         })
     return {'slug': slug, 'meta': meta, 'photos': photos}
