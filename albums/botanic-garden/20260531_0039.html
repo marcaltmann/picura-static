@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>20260531_0039 — Botanischer Garten Berlin</title>
+  <link rel="stylesheet" href="../../style.css">
+  
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  
+
+</head>
+<body class="wrapper flow">
+  
+  
+  <p><a class="back-link" href="index.html">← Botanischer Garten Berlin</a></p>
+
+  <figure class="detail">
+    <picture>
+      <source srcset="20260531_0039-display.avif" type="image/avif">
+      <source srcset="20260531_0039-display.webp" type="image/webp">
+      <img class="detail__image" src="20260531_0039-display.jpeg"
+           alt="20260531_0039"
+           width="1336" height="2000">
+    </picture>
+    
+  </figure>
+
+  
+
+  <dl class="exif">
+    <dt class="exif__key">Taken</dt><dd class="exif__value">31 May 2026, 14:11</dd>
+    
+    <dt class="exif__key">Camera</dt><dd class="exif__value">NIKON CORPORATION NIKON D750</dd>
+    <dt class="exif__key">Lens</dt><dd class="exif__value">AF-S Nikkor 70-200mm f/4G ED VR</dd>
+    <dt class="exif__key">Focal length</dt><dd class="exif__value">200 mm</dd>
+    <dt class="exif__key">Aperture</dt><dd class="exif__value">f/4</dd>
+    <dt class="exif__key">Shutter</dt><dd class="exif__value">1/320 s</dd>
+    <dt class="exif__key">ISO</dt><dd class="exif__value">400</dd>
+    <dt class="exif__key">Dimensions</dt><dd class="exif__value">1336 × 2000</dd>
+    <dt class="exif__key">Creator</dt><dd class="exif__value">Marc Altmann</dd>
+    
+  </dl>
+
+  
+  <ul class="photo__tags" role="list">
+    
+    <li class="photo__tag photo__tag--about">
+      <a href="https://www.wikidata.org/wiki/Q145954">Pinus nigra</a>
+    </li>
+    
+    <li class="photo__tag photo__tag--place">
+      <a href="https://www.wikidata.org/wiki/Q163255">Botanic Garden and Botanical Museum Berlin</a>
+    </li>
+    
+  </ul>
+  
+
+  
+  <div id="map" class="detail__map" data-points='[{"label": "Botanic Garden and Botanical Museum Berlin", "lat": 52.455, "lon": 13.3036}]'></div>
+  
+
+  <nav class="photo-nav">
+    <a class="photo-nav__prev" href="20260531_0034.html">← 20260531_0034</a>
+    <a class="photo-nav__next" href="20260531_0052.html">20260531_0052 →</a>
+  </nav>
+
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      var el = document.getElementById('map');
+      var points = JSON.parse(el.dataset.points);
+      var map = L.map(el);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      var latlngs = points.map(function (p) {
+        L.marker([p.lat, p.lon]).addTo(map).bindPopup(p.label);
+        return [p.lat, p.lon];
+      });
+      if (latlngs.length === 1) {
+        map.setView(latlngs[0], 11);
+      } else {
+        map.fitBounds(latlngs, { padding: [40, 40] });
+      }
+    })();
+  </script>
+  
+
+</body>
+</html>

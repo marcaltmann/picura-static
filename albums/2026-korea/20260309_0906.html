@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>20260309_0906 — South Korea 2026</title>
+  <link rel="stylesheet" href="../../style.css">
+  
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  
+
+</head>
+<body class="wrapper flow">
+  
+  
+  <p><a class="back-link" href="index.html">← South Korea 2026</a></p>
+
+  <figure class="detail">
+    <picture>
+      <source srcset="20260309_0906-display.avif" type="image/avif">
+      <source srcset="20260309_0906-display.webp" type="image/webp">
+      <img class="detail__image" src="20260309_0906-display.jpeg"
+           alt="20260309_0906"
+           width="2000" height="1336">
+    </picture>
+    
+  </figure>
+
+  
+
+  <dl class="exif">
+    <dt class="exif__key">Taken</dt><dd class="exif__value">9 March 2026, 18:28</dd>
+    
+    <dt class="exif__key">Camera</dt><dd class="exif__value">NIKON CORPORATION NIKON D750</dd>
+    <dt class="exif__key">Lens</dt><dd class="exif__value">AF-S Nikkor 28mm f/1.8G</dd>
+    <dt class="exif__key">Focal length</dt><dd class="exif__value">28 mm</dd>
+    <dt class="exif__key">Aperture</dt><dd class="exif__value">f/5.6</dd>
+    <dt class="exif__key">Shutter</dt><dd class="exif__value">1/60 s</dd>
+    <dt class="exif__key">ISO</dt><dd class="exif__value">720</dd>
+    <dt class="exif__key">Dimensions</dt><dd class="exif__value">2000 × 1336</dd>
+    <dt class="exif__key">Creator</dt><dd class="exif__value">Marc Altmann</dd>
+    
+  </dl>
+
+  
+  <ul class="photo__tags" role="list">
+    
+    <li class="photo__tag photo__tag--place">
+      <a href="https://www.wikidata.org/wiki/Q12585067">Gwangjang Market</a>
+    </li>
+    
+  </ul>
+  
+
+  
+  <div id="map" class="detail__map" data-points='[{"label": "Gwangjang Market", "lat": 37.57, "lon": 126.999}]'></div>
+  
+
+  <nav class="photo-nav">
+    <a class="photo-nav__prev" href="20260309_0882.html">← 20260309_0882</a>
+    <a class="photo-nav__next" href="20260309_0909.html">20260309_0909 →</a>
+  </nav>
+
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      var el = document.getElementById('map');
+      var points = JSON.parse(el.dataset.points);
+      var map = L.map(el);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      var latlngs = points.map(function (p) {
+        L.marker([p.lat, p.lon]).addTo(map).bindPopup(p.label);
+        return [p.lat, p.lon];
+      });
+      if (latlngs.length === 1) {
+        map.setView(latlngs[0], 11);
+      } else {
+        map.fitBounds(latlngs, { padding: [40, 40] });
+      }
+    })();
+  </script>
+  
+
+</body>
+</html>

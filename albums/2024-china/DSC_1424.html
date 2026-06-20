@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terrakotta-Krieger — China 2024</title>
+  <link rel="stylesheet" href="../../style.css">
+  
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  
+
+</head>
+<body class="wrapper flow">
+  
+  
+  <p><a class="back-link" href="index.html">← China 2024</a></p>
+
+  <figure class="detail">
+    <picture>
+      <source srcset="DSC_1424-display.avif" type="image/avif">
+      <source srcset="DSC_1424-display.webp" type="image/webp">
+      <img class="detail__image" src="DSC_1424-display.jpeg"
+           alt="Terrakotta-Krieger"
+           width="1999" height="1336">
+    </picture>
+    <figcaption class="detail__caption">Terrakotta-Krieger</figcaption>
+  </figure>
+
+  
+
+  <dl class="exif">
+    <dt class="exif__key">Taken</dt><dd class="exif__value">11 April 2024, 14:04</dd>
+    
+    <dt class="exif__key">Camera</dt><dd class="exif__value">NIKON CORPORATION NIKON D750</dd>
+    <dt class="exif__key">Lens</dt><dd class="exif__value">AF-S Zoom-Nikkor 24-70mm f/2.8G ED</dd>
+    <dt class="exif__key">Focal length</dt><dd class="exif__value">70 mm</dd>
+    <dt class="exif__key">Aperture</dt><dd class="exif__value">f/4</dd>
+    <dt class="exif__key">Shutter</dt><dd class="exif__value">1/125 s</dd>
+    <dt class="exif__key">ISO</dt><dd class="exif__value">1600</dd>
+    <dt class="exif__key">Dimensions</dt><dd class="exif__value">1999 × 1336</dd>
+    
+    
+  </dl>
+
+  
+  <ul class="photo__tags" role="list">
+    
+    <li class="photo__tag photo__tag--about">
+      <a href="https://www.wikidata.org/wiki/Q47672">Terracotta Army</a>
+    </li>
+    
+    <li class="photo__tag photo__tag--place">
+      <a href="https://www.wikidata.org/wiki/Q5826">Xi&#39;an</a>
+    </li>
+    
+  </ul>
+  
+
+  
+  <div id="map" class="detail__map" data-points='[{"label": "Xi\u0027an", "lat": 34.26111111111111, "lon": 108.94222222222223}]'></div>
+  
+
+  <nav class="photo-nav">
+    <a class="photo-nav__prev" href="DSC_1023.html">← Verbotene Stadt</a>
+    <a class="photo-nav__next" href="DSC_1672.html">Longmen-Grotten bei Luoyang →</a>
+  </nav>
+
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      var el = document.getElementById('map');
+      var points = JSON.parse(el.dataset.points);
+      var map = L.map(el);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      var latlngs = points.map(function (p) {
+        L.marker([p.lat, p.lon]).addTo(map).bindPopup(p.label);
+        return [p.lat, p.lon];
+      });
+      if (latlngs.length === 1) {
+        map.setView(latlngs[0], 11);
+      } else {
+        map.fitBounds(latlngs, { padding: [40, 40] });
+      }
+    })();
+  </script>
+  
+
+</body>
+</html>
