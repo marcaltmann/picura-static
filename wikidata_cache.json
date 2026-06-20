@@ -7,6 +7,13 @@
     "lat": 31.223055555556,
     "lon": 121.53972222222
   },
+  "Q12585067": {
+    "labels": {
+      "en": "Gwangjang Market"
+    },
+    "lat": 37.57,
+    "lon": 126.999
+  },
   "Q145954": {
     "labels": {
       "de": "Schwarzkiefer",
@@ -59,6 +66,14 @@
     },
     "lat": 31.2197,
     "lon": 121.483
+  },
+  "Q20415": {
+    "labels": {
+      "de": "Bahnhof Seoul",
+      "en": "Seoul Station"
+    },
+    "lat": 37.554722222222,
+    "lon": 126.97083333333
   },
   "Q210287": {
     "labels": {
@@ -121,6 +136,11 @@
     "lat": 34.385,
     "lon": 109.27305555555556
   },
+  "Q482485": {
+    "labels": {},
+    "lat": 37.5798841,
+    "lon": 126.9767996
+  },
   "Q545": {
     "labels": {
       "de": "Ostsee",
@@ -170,6 +190,14 @@
     },
     "lat": 30.222081,
     "lon": 120.1046972
+  },
+  "Q707067": {
+    "labels": {
+      "de": "Bukhansan-Nationalpark",
+      "en": "Bukhansan National Park"
+    },
+    "lat": 37.675,
+    "lon": 126.982
   },
   "Q7183281": {
     "labels": {
